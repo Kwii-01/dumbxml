@@ -62,6 +62,11 @@ findValueType :: [Tree String] -> String
 findValueType [] = []
 findValueType ((Node _ value _ _):xs) = chooseType value (findValueType xs)
 
+-- MAKE A UNQUE
+removeAllSameElem :: [Tree String] -> [Tree String]
+removeAllSameElem [] = []
+removeAllSameElem ((Node name value elems atts):xs) = (Node name value elems atts) : (removeAllSameElem (removeSameElem xs (Node name [] [] [])))
+
 -- FIND ALL ELEMENTS IN SEQUENCES
 findElems :: [Tree String] -> [Tree String]
 findElems [] = []
@@ -95,7 +100,7 @@ findName ((Node name _ _ _):xs) = name
 
 -- CREATE A NEW ELEMENT FROM A SEQUENCE OF SAME ELEMENTS
 createElementFT :: [Tree String] -> Tree String
-createElementFT xs = Node (findName xs) (findValueType xs) (findElems xs) (removeSameAttributs (findAttributs xs))
+createElementFT xs = Node (findName xs) (findValueType xs) (removeAllSameElem (findElems xs)) (removeSameAttributs (findAttributs xs))
 
 -- CREATE AN ELEMENT FROM THE ACTUAL ELEM + SAME ELEM IN THE SAME SEQUENCE + SAME ELEM IN DIFFERENTS SEQUENCE
 createElement :: Tree String -> [Tree String] -> [[Tree String]] -> (Tree String, [Tree String], [[Tree String]])
@@ -182,9 +187,8 @@ dump :: (Tree String, String, Res) -> IO()
 dump (_, _, ErrorParse) = exitWith $ ExitFailure 84
 dump (Empty, _, res) = putStrLn ""
 dump (tree, _, Parsed) = do
-      putStrLn "<?xml version=\"1.0\" encoding=\"UTF -8\"?>"
+      putStrLn "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
       putStrLn "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">"
-      putStrLn ""
       dumpElem tree [] []
       putStrLn "</xs:schema>"
 
